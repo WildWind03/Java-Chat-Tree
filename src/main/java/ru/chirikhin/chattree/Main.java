@@ -5,17 +5,15 @@ public class Main {
     public static final int COUNT_OF_ARGS_FOR_PARENT_NODE = 5;
 
     public static void main(String[] args) {
-        int countOfArgs = args.length;
+        ArgParser argParser = new ArgParser(args);
 
-        if (COUNT_OF_ARGS_FOR_CHILD_NODE != countOfArgs && COUNT_OF_ARGS_FOR_PARENT_NODE != countOfArgs) {
+        String name = argParser.getName();
+        int percentOfLoose = argParser.getPercentOfLoss();
+        int port = argParser.getPort();
 
-        }
+        if (argParser.isRoot()) {
 
-        String name;
-        int percentOfLoose;
-        int port;
-
-        if (COUNT_OF_ARGS_FOR_PARENT_NODE == countOfArgs) {
+        } else {
 
         }
     }

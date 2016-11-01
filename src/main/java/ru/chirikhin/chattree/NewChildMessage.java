@@ -12,7 +12,7 @@ public class NewChildMessage {
     private final long globalID;
 
     public NewChildMessage(long localID, int port, String ip) {
-        string = localID + "_" + port + "_" + localID;
+        string = localID + "_" + port + "_" + ip;
         this.localID = localID;
         this.port = port;
         this.ip = ip;
@@ -30,7 +30,7 @@ public class NewChildMessage {
         this.port = Long.parseLong(strings[1]);
         this.ip = strings[2];
 
-        String globalIDStr = localID + port + ip.replaceAll("[.]", "");
+        String globalIDStr = localID + (port + ip.replaceAll("[.]", ""));
         this.globalID = Long.parseLong(globalIDStr);
     }
 
@@ -48,6 +48,10 @@ public class NewChildMessage {
 
     public String getIp() {
         return ip;
+    }
+
+    public long getGlobalID() {
+        return globalID;
     }
 
 }

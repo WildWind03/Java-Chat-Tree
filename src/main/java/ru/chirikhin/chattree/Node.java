@@ -4,6 +4,10 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -11,13 +15,16 @@ public class Node implements Runnable {
     private static final Logger logger = Logger.getLogger(Node.class.toString());
     private static final int SIZE_OF_DATAGRAM_PACKET = 2048;
     private static final int DATAGRAM_SOCKET_TIMEOUT = 1000;
-    private static final int SIZE_OF_BLOCKING_QUEUE = 3000;
+    private static final int SIZE_OF_MESSAGE_QUEUE = 3000;
+    private static final int MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES = 3000;
 
     private final DatagramSocket datagramSocket;
     private final String name;
     private final int percentOfLose;
     private final InetSocketAddress parentInetSocketAddress;
-    private final BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>(SIZE_OF_BLOCKING_QUEUE);
+    private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>(SIZE_OF_MESSAGE_QUEUE);
+    private final HashSet<Long> notConfirmedMessages = new HashSet<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES)
+    private final LinkedList<InetSocketAddress> children = new LinkedList<>();
 
     private long counter = 0;
 
@@ -57,7 +64,9 @@ public class Node implements Runnable {
                 logger.info(e.getMessage());
             }
 
-            if (null != (message = blockingQueue.poll())) {
+            handleDatagramPacket(datagramPacket);
+
+            if (null != (message = messageQueue.poll())) {
                 sendMessageToAllNeighbours(message);
             }
         }
@@ -65,6 +74,39 @@ public class Node implements Runnable {
 
     private void sendMessageToAllNeighbours(String string) {
 
+    }
+
+    private void handleDatagramPacket(DatagramPacket datagramPacket) {
+        if (null != datagramPacket) {
+            byte[] bytes = datagramPacket.getData();
+            byte[] typeMessageBytes = Arrays.copyOfRange(bytes, 0, 3);
+            ByteBuffer wrapped = ByteBuffer.wrap(typeMessageBytes);
+            int messageType = wrapped.getInt();
+
+            MessageType messageType1 = MessageType.values()[messageType];
+
+            switch(messageType1) {
+                case CONFIRM:
+                    break;
+                case NEW_CHILD:
+                    break;
+                case NEW_PARENT:
+                    break;
+                case NOT_CHILD:
+                    break;
+                case TEXT:
+                    break;
+            }
+        }
+    }
+
+    private void handleNewChildMessage(NewChildMessage newChildMessage) {
+        long id = newChildMessage.getGlobalID();
+        int port = newChildMessage.getPort();
+        String ip = newChildMessage.getIp();
+
+        children.add(new InetSocketAddress(ip, port));
+        notConfirmedMessages.add(id);
     }
 
 }

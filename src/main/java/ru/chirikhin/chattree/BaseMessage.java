@@ -1,4 +1,7 @@
 package ru.chirikhin.chattree;
 
-public interface BaseMessage {
+public abstract class BaseMessage {
+    public BaseMessage(int localID, int port, String ip) {
+
+    }
 }

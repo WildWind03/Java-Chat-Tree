@@ -7,12 +7,13 @@ import java.nio.charset.Charset;
 public class NewChildMessage {
     private final String string;
     private final long localID;
-    private final long port;
+    private final int port;
     private final String ip;
     private final long globalID;
 
     public NewChildMessage(long localID, int port, String ip) {
-        string = localID + "_" + port + "_" + ip;
+        string = MessageType.NEW_CHILD + "_" + localID + "_" + port + "_" + ip;
+
         this.localID = localID;
         this.port = port;
         this.ip = ip;
@@ -26,9 +27,9 @@ public class NewChildMessage {
 
         String[] strings = StringUtils.split(string, '_');
 
-        this.localID = Long.parseLong(strings[0]);
-        this.port = Long.parseLong(strings[1]);
-        this.ip = strings[2];
+        this.localID = Long.parseLong(strings[1]);
+        this.port = Integer.parseInt(strings[2]);
+        this.ip = strings[3];
 
         String globalIDStr = localID + (port + ip.replaceAll("[.]", ""));
         this.globalID = Long.parseLong(globalIDStr);
@@ -42,7 +43,7 @@ public class NewChildMessage {
         return localID;
     }
 
-    public long getPort() {
+    public int getPort() {
         return port;
     }
 

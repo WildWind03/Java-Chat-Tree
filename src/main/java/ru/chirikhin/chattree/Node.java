@@ -22,13 +22,14 @@ public class Node implements Runnable {
     private final String name;
     private final int percentOfLose;
     private final InetSocketAddress parentInetSocketAddress;
+
+    private final GlobalIDGenerator globalIDGenerator = new GlobalIDGenerator(Inet4Address.getLocalHost().getHostAddress());
     private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>(SIZE_OF_MESSAGE_QUEUE);
-    private final HashSet<Long> notConfirmedMessages = new HashSet<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES)
+    private final HashSet<Long> notConfirmedMessages = new HashSet<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES);
     private final LinkedList<InetSocketAddress> children = new LinkedList<>();
 
-    private long counter = 0;
 
-    public Node (String name, int percentOfLose, int port, InetSocketAddress parentInetSocketAddress) throws SocketException {
+    public Node (String name, int percentOfLose, int port, InetSocketAddress parentInetSocketAddress) throws SocketException, UnknownHostException {
         this.datagramSocket = new DatagramSocket(port);
         this.datagramSocket.setSoTimeout(DATAGRAM_SOCKET_TIMEOUT);
         this.name = name;
@@ -38,10 +39,10 @@ public class Node implements Runnable {
 
     @Override
     public void run() {
-        NewChildMessage newChildMessage;
+        BaseMessage newChildMessage;
 
         try {
-            newChildMessage = new NewChildMessage(counter++, datagramSocket.getPort(), Inet4Address.getLocalHost().getHostAddress());
+            newChildMessage = new NewChildMessage(globalIDGenerator.getGlobalID());
             datagramSocket.send(new DatagramPacket(newChildMessage.bytes(), newChildMessage.bytes().length, parentInetSocketAddress));
         } catch (UnknownHostException e) {
             logger.error(e.getMessage());

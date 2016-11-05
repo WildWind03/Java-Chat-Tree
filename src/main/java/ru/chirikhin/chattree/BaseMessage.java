@@ -51,7 +51,7 @@ public abstract class BaseMessage {
         return port;
     }
 
-    public String getIp() {
+    public String getNewParentIP() {
         return ip;
     }
 

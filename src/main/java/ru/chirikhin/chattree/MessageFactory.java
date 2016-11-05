@@ -3,9 +3,7 @@ package ru.chirikhin.chattree;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 public class MessageFactory {
     private static final Logger logger = Logger.getLogger(MessageFactory.class.getName());
@@ -23,26 +21,27 @@ public class MessageFactory {
         MessageType messageTypeEnum = MessageType.values()[messageType];
 
         BaseMessage message;
-        long globalID;
+        long globalID = Long.parseLong(strings[1]);
 
         switch(messageTypeEnum) {
             case CONFIRM:
-                globalID = Long.parseLong(strings[1]);
                 message = new ConfirmMessage(globalID);
                 break;
 
             case NEW_CHILD:
-                globalID = Long.parseLong(strings[1]);
                 message = new NewChildMessage(globalID);
                 break;
 
             case NEW_PARENT:
+                message = new NewParentMessage(globalID, strings[1]);
                 break;
 
             case NOT_CHILD:
+                message = new NotChildMessage(globalID);
                 break;
 
             case TEXT:
+                message = new TextMessage(globalID, strings[1]);
                 break;
 
             default:

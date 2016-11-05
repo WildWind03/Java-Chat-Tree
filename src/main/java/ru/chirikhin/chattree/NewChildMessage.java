@@ -3,7 +3,10 @@ package ru.chirikhin.chattree;
 import java.nio.charset.Charset;
 
 public class NewChildMessage extends BaseMessage {
-    private final String string;
+    public NewChildMessage(long globalID) {
+        super(globalID);
+    }
+    /*private final String string;
 
     public NewChildMessage(long localID, int port, String ip) {
         super(localID, port, ip);
@@ -18,4 +21,5 @@ public class NewChildMessage extends BaseMessage {
     byte[] bytes() {
         return string.getBytes(Charset.forName("UTF-8"));
     }
+    */
 }

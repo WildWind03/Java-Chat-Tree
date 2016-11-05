@@ -6,11 +6,20 @@ import java.nio.charset.Charset;
 
 public abstract class BaseMessage {
     private final long globalID;
-    private final int port;
-    private final long localID;
-    private final String ip;
 
-    public BaseMessage(long localID, int port, String ip) {
+    public BaseMessage(long globalID) {
+        this.globalID = globalID;
+    }
+
+    public long getGlobalID() {
+        return globalID;
+    }
+
+    //private final int port;
+    //private final long localID;
+    //private final String ip;
+
+    /*public BaseMessage(long localID, int port, String ip) {
         this.localID = localID;
         this.port = port;
         this.ip = ip;
@@ -48,5 +57,5 @@ public abstract class BaseMessage {
 
     public long getGlobalID() {
         return globalID;
-    }
+    }*/
 }

@@ -76,30 +76,6 @@ public class Node implements Runnable {
 
     }
 
-    private void handleDatagramPacket(DatagramPacket datagramPacket) {
-        if (null != datagramPacket) {
-            byte[] bytes = datagramPacket.getData();
-            byte[] typeMessageBytes = Arrays.copyOfRange(bytes, 0, 3);
-            ByteBuffer wrapped = ByteBuffer.wrap(typeMessageBytes);
-            int messageType = wrapped.getInt();
-
-            MessageType messageType1 = MessageType.values()[messageType];
-
-            switch(messageType1) {
-                case CONFIRM:
-                    break;
-                case NEW_CHILD:
-                    break;
-                case NEW_PARENT:
-                    break;
-                case NOT_CHILD:
-                    break;
-                case TEXT:
-                    break;
-            }
-        }
-    }
-
     private void handleNewChildMessage(NewChildMessage newChildMessage) {
         long id = newChildMessage.getGlobalID();
         int port = newChildMessage.getPort();

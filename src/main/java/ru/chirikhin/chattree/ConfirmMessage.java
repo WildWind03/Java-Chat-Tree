@@ -3,7 +3,26 @@ package ru.chirikhin.chattree;
 import java.nio.charset.Charset;
 
 public class ConfirmMessage extends BaseMessage {
-    public ConfirmMessage(long globalID) {
+    private final long confirmForMessageID;
+
+    public ConfirmMessage(long globalID, long confirmForMessageID) {
         super(globalID);
+        this.confirmForMessageID = confirmForMessageID;
     }
+
+    public boolean isConfirmForThisMessage(BaseMessage baseMessage) {
+        return baseMessage.getGlobalID() == confirmForMessageID;
+    }
+
+    @Override
+    byte[] bytes() {
+        String serializedMessage = "" + MessageType.CONFIRM + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + confirmForMessageID;
+        return serializedMessage.getBytes(Charset.forName("UTF-8"));
+    }
+
+    @Override
+    void process(Node node) {
+        node.handleConfirmMessage(this);
+    }
+
 }

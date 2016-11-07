@@ -8,11 +8,17 @@ public class NewParentMessage extends BaseMessage {
     private static final Logger logger = Logger.getLogger(NewParentMessage.class.getName());
 
     private final String newParentIP;
+    private final int port;
 
-    public NewParentMessage(long globalID, String ip) {
+    public NewParentMessage(long globalID, String ip, int port) {
         super(globalID);
 
         this.newParentIP = ip;
+        this.port = port;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public String getNewParentIP() {
@@ -21,12 +27,7 @@ public class NewParentMessage extends BaseMessage {
 
     @Override
     byte[] bytes() {
-        String serializedMessage = "" + MessageType.NEW_PARENT + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getNewParentIP();
+        String serializedMessage = "" + MessageType.NEW_PARENT + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getNewParentIP() + SEPARATOR_CHAR + port;
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
-    }
-
-    @Override
-    void process(Node node) {
-        node.handleNewParentMessage(this);
     }
 }

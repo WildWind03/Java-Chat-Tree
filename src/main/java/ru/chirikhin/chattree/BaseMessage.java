@@ -18,6 +18,4 @@ public abstract class BaseMessage {
     }
 
     abstract byte[] bytes();
-
-    abstract void process(Node node);
 }

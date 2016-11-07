@@ -2,6 +2,7 @@ package ru.chirikhin.chattree;
 
 import org.apache.log4j.Logger;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class CycleLinkedList<T> {
@@ -22,5 +23,9 @@ public class CycleLinkedList<T> {
         }
 
         linkedList.push(t);
+    }
+
+    public Iterator<T> iterator() {
+        return linkedList.iterator();
     }
 }

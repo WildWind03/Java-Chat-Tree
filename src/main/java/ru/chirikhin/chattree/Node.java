@@ -2,11 +2,8 @@ package ru.chirikhin.chattree;
 
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,7 +11,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Node implements Runnable {
     private static final Logger logger = Logger.getLogger(Node.class.toString());
     private static final int DATAGRAM_SOCKET_TIMEOUT = 1000;
-    private static final int SIZE_OF_MESSAGE_QUEUE = 3000;
     private static final int MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES = 3000;
     private static final int CAPACITY_OF_RECEIVE_QUEUE = 1000;
     private static final int CAPACITY_OF_TO_SEND_QUEUE = 1000;
@@ -22,15 +18,16 @@ public class Node implements Runnable {
     private final DatagramSocket datagramSocket;
     private final String name;
     private final int percentOfLose;
-    private final InetSocketAddress parentInetSocketAddress;
     private final GlobalIDGenerator globalIDGenerator;
     private final Thread senderThread;
     private final Thread receiverThread;
 
+    private InetSocketAddress parentInetSocketAddress;
+
     private final BlockingQueue<BaseMessage> receivedMessages = new LinkedBlockingQueue<>(CAPACITY_OF_RECEIVE_QUEUE);
     private final BlockingQueue<AddressedMessage> messagesToSend = new LinkedBlockingQueue<>(CAPACITY_OF_TO_SEND_QUEUE);
 
-    private final CycleLinkedList<Long> notConfirmedMessages = new CycleLinkedList<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES);
+    private final CycleLinkedList<AddressedMessage> notConfirmedMessages = new CycleLinkedList<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES);
     private final LinkedList<InetSocketAddress> children = new LinkedList<>();
 
 
@@ -63,7 +60,7 @@ public class Node implements Runnable {
 
     private void sendMessage(AddressedMessage addressedMessage) throws InterruptedException {
         messagesToSend.put(addressedMessage);
-        notConfirmedMessages.push(addressedMessage.getBaseMessage().getGlobalID());
+        notConfirmedMessages.push(addressedMessage);
     }
 
     private void sendMessageToAllNeighbours(BaseMessage baseMessage) throws InterruptedException {
@@ -74,26 +71,52 @@ public class Node implements Runnable {
         }
     }
 
-    public void handleTextMessage(TextMessage textMessage) {
+    public void handleReceivedTextMessage(ReceivedTextMessage textMessage) {
 
     }
 
-    public void handleConfirmMessage(ConfirmMessage confirmMessage) {
+    public void handleReceivedConfirmMessage(ReceivedConfirmMessage confirmMessage) {
     }
 
-    public void handleNotChildMessage(NotChildMessage notChildMessage) {
-
-    }
-
-    public void handleNewParentMessage(NewParentMessage newParentMessage) {
+    public void handleReceivedNotChildMessage(ReceivedNotChildMessage notChildMessage) {
 
     }
 
-    public void handleNewChildMessage(NewChildMessage newChildMessage) {
-        long id = newChildMessage.getGlobalID(); //порт в id генератор!!!
+    public void handleReceivedNewParentMessage(ReceivedNewParentMessage newParentMessage) {
+        Iterator<AddressedMessage> iter = messagesToSend.iterator();
 
-        children.add(new InetSocketAddress(ip, port));
-        notConfirmedMessages.add(id);
+        while(iter.hasNext()) {
+            if (iter.next().getReceiverAddress().equals(parentInetSocketAddress)) {
+                iter.remove();
+            }
+        }
+
+        iter = notConfirmedMessages.iterator();
+
+        while(iter.hasNext()) {
+            if (iter.next().getReceiverAddress().equals(parentInetSocketAddress)) {
+                iter.remove();
+            }
+        }
+
+        ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), newParentMessage.getNewParentMessage().getGlobalID());
+        AddressedMessage addressedMessage = new AddressedMessage(confirmMessage, new InetSocketAddress(newParentMessage.getNewParentMessage().getNewParentIP(), newParentMessage.getNewParentMessage().getPort()));
+        if (!messagesToSend.add(addressedMessage)) {
+            logger.error("Can't send confirm message while answering newParentMessage");
+        }
+
+        parentInetSocketAddress = new InetSocketAddress(newParentMessage.getNewParentMessage().getNewParentIP(), newParentMessage.getNewParentMessage().getPort());
+    }
+
+    public void handleNewChildMessage(ReceivedNewChildMessage newChildMessage) {
+        children.add(newChildMessage.getInetSocketAddress());
+
+        ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), newChildMessage.getNewChildMessage().getGlobalID());
+        AddressedMessage addressedMessage = new AddressedMessage(confirmMessage, newChildMessage.getInetSocketAddress());
+
+        if (!messagesToSend.add(addressedMessage)) {
+            logger.error("Can't send confirm message while answering newChildMessage");
+        }
     }
 
 }

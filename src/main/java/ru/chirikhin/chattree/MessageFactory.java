@@ -3,6 +3,7 @@ package ru.chirikhin.chattree;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.net.DatagramPacket;
 import java.nio.charset.Charset;
 
 public class MessageFactory {
@@ -13,7 +14,8 @@ public class MessageFactory {
 
     }
 
-    public static BaseMessage createMessage(byte[] bytes) {
+    public static BaseMessage createMessage(DatagramPacket datagramPacket) {
+        byte[] bytes = datagramPacket.getData();
         String string = new String(bytes, Charset.forName("UTF-8"));
         String[] strings = StringUtils.split(string, SEPARATOR_CHAR);
         int messageType = Integer.parseInt(strings[0]);
@@ -25,7 +27,7 @@ public class MessageFactory {
 
         switch(messageTypeEnum) {
             case CONFIRM:
-                message = new ConfirmMessage(globalID);
+                message = new ConfirmMessage(globalID, Long.parseLong(strings[1]));
                 break;
 
             case NEW_CHILD:

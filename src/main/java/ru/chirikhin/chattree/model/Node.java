@@ -23,13 +23,14 @@ public class Node implements Runnable, Observer {
     private final GlobalIDGenerator globalIDGenerator;
     private final Thread senderThread;
     private final Thread receiverThread;
+    private final Thread resenderThread;
 
     private InetSocketAddress parentInetSocketAddress;
 
     private final BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<>(CAPACITY_OF_RECEIVE_QUEUE);
     private final BlockingQueue<AddressedMessage> messagesToSend = new LinkedBlockingQueue<>(CAPACITY_OF_TO_SEND_QUEUE);
 
-    private final CycleLinkedList<AddressedMessage> notConfirmedMessages = new CycleLinkedList<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES);
+    private final CycleLinkedList<NotConfirmedAddressedMessage> notConfirmedMessages = new CycleLinkedList<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES);
     private final LinkedList<InetSocketAddress> children = new LinkedList<>();
 
 
@@ -41,6 +42,7 @@ public class Node implements Runnable, Observer {
         this.globalIDGenerator = new GlobalIDGenerator(port, Inet4Address.getLocalHost().getHostAddress());
         this.receiverThread = new Thread(new MessageReceiver(receivedMessages, datagramSocket, percentOfLose));
         this.senderThread = new Thread(new MessageSender(messagesToSend, datagramSocket));
+        this.resenderThread = new Thread(new MessageResender(messagesToSend, notConfirmedMessages));
     }
 
     @Override
@@ -64,7 +66,7 @@ public class Node implements Runnable, Observer {
 
     private void sendMessage(AddressedMessage addressedMessage) {
         messagesToSend.add(addressedMessage);
-        notConfirmedMessages.add(addressedMessage);
+        notConfirmedMessages.add(new NotConfirmedAddressedMessage(addressedMessage, System.currentTimeMillis()));
     }
 
     private void sendMessageToAllNeighbours(BaseMessage baseMessage) {
@@ -90,7 +92,13 @@ public class Node implements Runnable, Observer {
     }
 
     public void handleReceivedConfirmMessage(ReceivedConfirmMessage confirmMessage) {
+        Iterator<NotConfirmedAddressedMessage> addressedMessageIterator = notConfirmedMessages.iterator();
 
+        while(addressedMessageIterator.hasNext()) {
+            if (confirmMessage.getConfirmMessage().isConfirmForThisMessage(addressedMessageIterator.next().getAddressedMessage().getBaseMessage())) {
+                addressedMessageIterator.remove();
+            }
+        }
     }
 
     public void handleReceivedNotChildMessage(ReceivedNotChildMessage notChildMessage) {
@@ -102,10 +110,10 @@ public class Node implements Runnable, Observer {
             }
         }
 
-        Iterator<AddressedMessage> iter = notConfirmedMessages.iterator();
+        Iterator<NotConfirmedAddressedMessage> iter = notConfirmedMessages.iterator();
 
         while(iter.hasNext()) {
-            if (iter.next().getReceiverAddress().equals(notChildMessage.getInetSocketAddress())) {
+            if (iter.next().getAddressedMessage().getReceiverAddress().equals(notChildMessage.getInetSocketAddress())) {
                 iter.remove();
             }
         }
@@ -126,11 +134,11 @@ public class Node implements Runnable, Observer {
             }
         }
 
-        iter = notConfirmedMessages.iterator();
+        Iterator<NotConfirmedAddressedMessage> iter1 = notConfirmedMessages.iterator();
 
-        while(iter.hasNext()) {
-            if (iter.next().getReceiverAddress().equals(parentInetSocketAddress)) {
-                iter.remove();
+        while(iter1.hasNext()) {
+            if (iter1.next().getAddressedMessage().getReceiverAddress().equals(parentInetSocketAddress)) {
+                iter1.remove();
             }
         }
 
@@ -157,7 +165,7 @@ public class Node implements Runnable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         if (arg instanceof String) {
-            sendMessageToAllNeighbours(new TextMessage(globalIDGenerator.getGlobalID(), (String) arg));
+            sendMessageToAllNeighbours(new TextMessage(globalIDGenerator.getGlobalID(), name + ": " + arg));
         }
     }
 }

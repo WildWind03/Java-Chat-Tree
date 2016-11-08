@@ -58,12 +58,12 @@ public class Node implements Runnable {
         }
     }
 
-    private void sendMessage(AddressedMessage addressedMessage) throws InterruptedException {
-        messagesToSend.put(addressedMessage);
-        notConfirmedMessages.push(addressedMessage);
+    private void sendMessage(AddressedMessage addressedMessage) {
+        messagesToSend.add(addressedMessage);
+        notConfirmedMessages.add(addressedMessage);
     }
 
-    private void sendMessageToAllNeighbours(BaseMessage baseMessage) throws InterruptedException {
+    private void sendMessageToAllNeighbours(BaseMessage baseMessage) {
         sendMessage(new AddressedMessage(baseMessage, parentInetSocketAddress));
 
         for (InetSocketAddress child : children) {
@@ -72,14 +72,45 @@ public class Node implements Runnable {
     }
 
     public void handleReceivedTextMessage(ReceivedTextMessage textMessage) {
+        logger.info("New text message: " + textMessage.getReceivedMessage().getText());
 
+        if (!textMessage.getInetSocketAddress().equals(parentInetSocketAddress)) {
+            sendMessage(new AddressedMessage(textMessage.getReceivedMessage(), parentInetSocketAddress));
+        }
+
+        for (InetSocketAddress inetSocketAddress : children) {
+            if (!inetSocketAddress.equals(textMessage.getInetSocketAddress())) {
+                sendMessage(new AddressedMessage(textMessage.getReceivedMessage(), inetSocketAddress));
+            }
+        }
     }
 
     public void handleReceivedConfirmMessage(ReceivedConfirmMessage confirmMessage) {
+
     }
 
     public void handleReceivedNotChildMessage(ReceivedNotChildMessage notChildMessage) {
+        Iterator<InetSocketAddress> inetSocketAddressIterator = children.iterator();
 
+        while (inetSocketAddressIterator.hasNext()) {
+            if (inetSocketAddressIterator.next().equals(notChildMessage.getInetSocketAddress())) {
+                inetSocketAddressIterator.remove();
+            }
+        }
+
+        Iterator<AddressedMessage> iter = notConfirmedMessages.iterator();
+
+        while(iter.hasNext()) {
+            if (iter.next().getReceiverAddress().equals(notChildMessage.getInetSocketAddress())) {
+                iter.remove();
+            }
+        }
+
+        ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), notChildMessage.getNotChildMessage().getGlobalID());
+        AddressedMessage addressedMessage = new AddressedMessage(confirmMessage, notChildMessage.getInetSocketAddress());
+        if (!messagesToSend.add(addressedMessage)) {
+            logger.error("Can not send confirm message while answering notChildMessage");
+        }
     }
 
     public void handleReceivedNewParentMessage(ReceivedNewParentMessage newParentMessage) {

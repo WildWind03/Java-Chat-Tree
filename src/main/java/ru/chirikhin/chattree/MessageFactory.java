@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.net.DatagramPacket;
+import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
 public class MessageFactory {
@@ -14,7 +15,7 @@ public class MessageFactory {
 
     }
 
-    public static BaseMessage createMessage(DatagramPacket datagramPacket) {
+    public static ReceivedMessage createMessage(DatagramPacket datagramPacket) {
         byte[] bytes = datagramPacket.getData();
         String string = new String(bytes, Charset.forName("UTF-8"));
         String[] strings = StringUtils.split(string, SEPARATOR_CHAR);
@@ -22,28 +23,38 @@ public class MessageFactory {
 
         MessageType messageTypeEnum = MessageType.values()[messageType];
 
-        BaseMessage message;
+        ReceivedMessage message;
         long globalID = Long.parseLong(strings[1]);
 
         switch(messageTypeEnum) {
             case CONFIRM:
-                message = new ConfirmMessage(globalID, Long.parseLong(strings[1]));
+                message = new ReceivedConfirmMessage(
+                        new ConfirmMessage(globalID, Long.parseLong(strings[1])),
+                        new InetSocketAddress(datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort()));
                 break;
 
             case NEW_CHILD:
-                message = new NewChildMessage(globalID);
+                message = new ReceivedNewChildMessage(
+                        new NewChildMessage(globalID),
+                        new InetSocketAddress(datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort()));
                 break;
 
             case NEW_PARENT:
-                message = new NewParentMessage(globalID, strings[1]);
+                message = new ReceivedNewParentMessage(
+                        new NewParentMessage(globalID, strings[1], Integer.parseInt(strings[2])),
+                        new InetSocketAddress(datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort()));
                 break;
 
             case NOT_CHILD:
-                message = new NotChildMessage(globalID);
+                message = new ReceivedNotChildMessage(
+                        new NotChildMessage(globalID),
+                        new InetSocketAddress(datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort()));
                 break;
 
             case TEXT:
-                message = new TextMessage(globalID, strings[1]);
+                message = new ReceivedTextMessage(
+                        new TextMessage(globalID, strings[1]),
+                        new InetSocketAddress(datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort()));
                 break;
 
             default:

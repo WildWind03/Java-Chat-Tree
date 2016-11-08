@@ -25,6 +25,14 @@ public class CycleLinkedList<T> {
         linkedList.push(t);
     }
 
+    public boolean add(T t) {
+        if (currentSize >= maxSize) {
+            return linkedList.add(t);
+        } else {
+            return false;
+        }
+    }
+
     public Iterator<T> iterator() {
         return linkedList.iterator();
     }

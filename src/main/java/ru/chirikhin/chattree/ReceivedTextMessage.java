@@ -3,16 +3,16 @@ package ru.chirikhin.chattree;
 import java.net.InetSocketAddress;
 
 public class ReceivedTextMessage extends ReceivedMessage {
-    private final ReceivedMessage receivedMessage;
+    private final TextMessage textMessage;
     private final InetSocketAddress inetSocketAddress;
 
-    public ReceivedTextMessage(ReceivedMessage receivedMessage, InetSocketAddress inetSocketAddress) {
-        this.receivedMessage = receivedMessage;
+    public ReceivedTextMessage(TextMessage textMessage, InetSocketAddress inetSocketAddress) {
+        this.textMessage = textMessage;
         this.inetSocketAddress = inetSocketAddress;
     }
 
-    public ReceivedMessage getReceivedMessage() {
-        return receivedMessage;
+    public TextMessage getReceivedMessage() {
+        return textMessage;
     }
 
     public InetSocketAddress getInetSocketAddress() {

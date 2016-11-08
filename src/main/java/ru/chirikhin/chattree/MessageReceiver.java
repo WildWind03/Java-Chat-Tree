@@ -26,7 +26,7 @@ public class MessageReceiver implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 datagramSocket.receive(datagramPacket);
-                BaseMessage baseMessage = MessageFactory.createMessage(datagramPacket.getData());
+                BaseMessage baseMessage = MessageFactory.createMessage(datagramPacket);
                 receivedMessages.put(baseMessage);
             }
         } catch (IOException e) {

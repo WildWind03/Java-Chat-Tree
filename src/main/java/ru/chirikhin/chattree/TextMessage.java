@@ -24,9 +24,4 @@ public class TextMessage extends BaseMessage {
         String serializedMessage = "" + MessageType.NEW_PARENT + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getText();
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
-
-    @Override
-    void process(Node node) {
-        node.handleTextMessage(this);
-    }
 }

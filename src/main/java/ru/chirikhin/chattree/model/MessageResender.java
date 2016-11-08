@@ -1,5 +1,6 @@
 package ru.chirikhin.chattree.model;
 
+import org.apache.log4j.Logger;
 import ru.chirikhin.cyclelist.CycleLinkedList;
 
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.concurrent.BlockingQueue;
 public class MessageResender implements Runnable {
 
     private static final long MAX_DELAY_TO_RESEND = 500;
+    private static final Logger logger = Logger.getLogger(MessageResender.class);
 
     private final BlockingQueue<AddressedMessage> messagesToSend;
     private final CycleLinkedList<NotConfirmedAddressedMessage> notConfirmedAddressedMessageCycleLinkedList;
@@ -27,6 +29,7 @@ public class MessageResender implements Runnable {
             while (iterator.hasNext()) {
                 NotConfirmedAddressedMessage currentMessage = iterator.next();
                 if (currentTime - currentMessage.getTimeOfAdd() >= MAX_DELAY_TO_RESEND) {
+                    logger.info("Message " + currentMessage.getAddressedMessage().getBaseMessage().getGlobalID() + " will be resend. There is not confirmation for the message");
                     currentMessage.updateTimeOfAdd(System.currentTimeMillis());
                     messagesToSend.add(currentMessage.getAddressedMessage());
                 }

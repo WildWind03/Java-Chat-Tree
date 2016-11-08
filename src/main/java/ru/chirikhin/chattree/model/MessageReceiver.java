@@ -31,8 +31,10 @@ public class MessageReceiver implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 datagramSocket.receive(datagramPacket);
+                logger.info("New message actually received");
 
                 if (random.nextInt(MAX_RANDOM_NUMBER) >= percentOfLoss) {
+                    logger.info("New message received at all!");
                     ReceivedMessage baseMessage = MessageFactory.createMessage(datagramPacket);
                     receivedMessages.put(baseMessage);
                 }

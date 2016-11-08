@@ -49,6 +49,7 @@ public class Node implements Runnable, Observer {
     public void run() {
         this.receiverThread.start();
         this.senderThread.start();
+        this.resenderThread.start();
 
         BaseMessage newChildMessage = new NewChildMessage(globalIDGenerator.getGlobalID());
 
@@ -166,6 +167,20 @@ public class Node implements Runnable, Observer {
     public void update(Observable o, Object arg) {
         if (arg instanceof String) {
             sendMessageToAllNeighbours(new TextMessage(globalIDGenerator.getGlobalID(), name + ": " + arg));
+        }
+    }
+
+    public void stop() {
+        resenderThread.interrupt();
+        senderThread.interrupt();
+        receiverThread.interrupt();
+
+        try {
+            receiverThread.join();
+            senderThread.join();
+            receiverThread.join();
+        } catch (InterruptedException e) {
+            logger.info(e.getMessage());
         }
     }
 }

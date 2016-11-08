@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 
 public class AddressedMessage {
     private static final Logger logger = Logger.getLogger(AddressedMessage.class.getName());
+
     private final BaseMessage baseMessage;
     private final InetSocketAddress receiverAddress;
 

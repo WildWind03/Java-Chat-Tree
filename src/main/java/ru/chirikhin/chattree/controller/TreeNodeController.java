@@ -1,6 +1,6 @@
 package ru.chirikhin.chattree.controller;
 
-import com.sun.istack.internal.logging.Logger;
+import org.apache.log4j.Logger;
 import ru.chirikhin.chattree.model.Node;
 import ru.chirikhin.chattree.view.ConsoleInputView;
 
@@ -29,6 +29,12 @@ public class TreeNodeController {
         this.port = argParser.getPort();
         this.parentInetSocketAddress = argParser.getParentInetSocketAddress();
 
+        logger.info("Tree node controller was created");
+        logger.info("Name: " + name);
+        logger.info("Percent of Loss: " + percentOfLoss);
+        logger.info("Port: " + port);
+        logger.info("Parent Inet Socket Address: " + parentInetSocketAddress);
+
         consoleInputView = new ConsoleInputView();
 
         node = new Node(name, percentOfLoss, port, parentInetSocketAddress);
@@ -41,11 +47,17 @@ public class TreeNodeController {
     public void start() throws SocketException, UnknownHostException {
         nodeThread.start();
         consoleInputViewThread.start();
+
+        logger.info("Node thread and consoleInputViewThread started!");
     }
 
     public void stop() {
-        nodeThread.interrupt();
+        logger.info("Interrupt");
+
         consoleInputViewThread.interrupt();
+        nodeThread.interrupt();
+
+        node.stop();
 
         try {
             nodeThread.join();

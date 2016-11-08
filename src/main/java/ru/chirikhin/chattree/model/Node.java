@@ -20,7 +20,6 @@ public class Node implements Runnable, Observer {
 
     private final DatagramSocket datagramSocket;
     private final String name;
-    private final int percentOfLose;
     private final GlobalIDGenerator globalIDGenerator;
     private final Thread senderThread;
     private final Thread receiverThread;
@@ -38,15 +37,17 @@ public class Node implements Runnable, Observer {
         this.datagramSocket = new DatagramSocket(port);
         this.datagramSocket.setSoTimeout(DATAGRAM_SOCKET_TIMEOUT);
         this.name = name;
-        this.percentOfLose = percentOfLose;
         this.parentInetSocketAddress = parentInetSocketAddress;
         this.globalIDGenerator = new GlobalIDGenerator(port, Inet4Address.getLocalHost().getHostAddress());
-        this.receiverThread = new Thread(new MessageReceiver(receivedMessages, datagramSocket));
+        this.receiverThread = new Thread(new MessageReceiver(receivedMessages, datagramSocket, percentOfLose));
         this.senderThread = new Thread(new MessageSender(messagesToSend, datagramSocket));
     }
 
     @Override
     public void run() {
+        this.receiverThread.start();
+        this.senderThread.start();
+
         BaseMessage newChildMessage = new NewChildMessage(globalIDGenerator.getGlobalID());
 
         try {

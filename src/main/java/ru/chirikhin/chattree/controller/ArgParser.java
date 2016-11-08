@@ -1,4 +1,4 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.chattree.controller;
 
 import java.net.InetSocketAddress;
 

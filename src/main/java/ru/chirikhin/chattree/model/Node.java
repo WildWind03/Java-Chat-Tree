@@ -1,6 +1,7 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.chattree.model;
 
 import org.apache.log4j.Logger;
+import ru.chirikhin.cyclelist.CycleLinkedList;
 
 import java.net.*;
 import java.util.Iterator;
@@ -24,7 +25,7 @@ public class Node implements Runnable {
 
     private InetSocketAddress parentInetSocketAddress;
 
-    private final BlockingQueue<BaseMessage> receivedMessages = new LinkedBlockingQueue<>(CAPACITY_OF_RECEIVE_QUEUE);
+    private final BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<>(CAPACITY_OF_RECEIVE_QUEUE);
     private final BlockingQueue<AddressedMessage> messagesToSend = new LinkedBlockingQueue<>(CAPACITY_OF_TO_SEND_QUEUE);
 
     private final CycleLinkedList<AddressedMessage> notConfirmedMessages = new CycleLinkedList<>(MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES);
@@ -50,7 +51,7 @@ public class Node implements Runnable {
             sendMessage(new AddressedMessage(newChildMessage, parentInetSocketAddress));
 
             while (!Thread.currentThread().isInterrupted()) {
-                BaseMessage baseMessage = receivedMessages.take();
+                ReceivedMessage baseMessage = receivedMessages.take();
                 baseMessage.process(this);
             }
         } catch (InterruptedException e) {

@@ -1,8 +1,7 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.chattree.model;
 
 import org.apache.log4j.Logger;
 
-import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
 public class AddressedMessage {

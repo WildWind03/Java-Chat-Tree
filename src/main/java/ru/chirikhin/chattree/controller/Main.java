@@ -1,4 +1,4 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.chattree.controller;
 
 public class Main {
     public static final int COUNT_OF_ARGS_FOR_CHILD_NODE = 3;

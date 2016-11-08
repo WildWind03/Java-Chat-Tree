@@ -1,4 +1,4 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.cyclelist;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +26,7 @@ public class CycleLinkedList<T> {
     }
 
     public boolean add(T t) {
-        if (currentSize >= maxSize) {
+        if (currentSize++ >= maxSize) {
             return linkedList.add(t);
         } else {
             return false;

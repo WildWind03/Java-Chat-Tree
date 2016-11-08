@@ -1,4 +1,4 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.chattree.model;
 
 import org.apache.commons.lang3.StringUtils;
 

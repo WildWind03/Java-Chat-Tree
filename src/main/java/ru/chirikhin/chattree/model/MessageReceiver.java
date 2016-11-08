@@ -1,4 +1,4 @@
-package ru.chirikhin.chattree;
+package ru.chirikhin.chattree.model;
 
 import org.apache.log4j.Logger;
 
@@ -11,12 +11,12 @@ public class MessageReceiver implements Runnable {
     private static final Logger logger = Logger.getLogger(MessageReceiver.class.getName());
     private static final int SIZE_OF_DATAGRAM_PACKET = 2048;
 
-    private final BlockingQueue<BaseMessage> receivedMessages;
+    private final BlockingQueue<ReceivedMessage> receivedMessages;
     private final DatagramSocket datagramSocket;
 
     private final DatagramPacket datagramPacket = new DatagramPacket(new byte[SIZE_OF_DATAGRAM_PACKET], SIZE_OF_DATAGRAM_PACKET);
 
-    public MessageReceiver(BlockingQueue<BaseMessage> receivedMessages, DatagramSocket datagramSocket) {
+    public MessageReceiver(BlockingQueue<ReceivedMessage> receivedMessages, DatagramSocket datagramSocket) {
         this.receivedMessages = receivedMessages;
         this.datagramSocket = datagramSocket;
     }
@@ -26,7 +26,7 @@ public class MessageReceiver implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 datagramSocket.receive(datagramPacket);
-                BaseMessage baseMessage = MessageFactory.createMessage(datagramPacket);
+                ReceivedMessage baseMessage = MessageFactory.createMessage(datagramPacket);
                 receivedMessages.put(baseMessage);
             }
         } catch (IOException e) {

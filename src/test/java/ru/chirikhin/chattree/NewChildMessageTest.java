@@ -1,8 +1,8 @@
 package ru.chirikhin.chattree;
 
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import ru.chirikhin.chattree.model.NewChildMessage;
 
 public class NewChildMessageTest {
 

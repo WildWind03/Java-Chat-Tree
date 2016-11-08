@@ -6,10 +6,12 @@ import ru.chirikhin.cyclelist.CycleLinkedList;
 import java.net.*;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Node implements Runnable {
+public class Node implements Runnable, Observer {
     private static final Logger logger = Logger.getLogger(Node.class.toString());
     private static final int DATAGRAM_SOCKET_TIMEOUT = 1000;
     private static final int MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES = 3000;
@@ -151,4 +153,10 @@ public class Node implements Runnable {
         }
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof String) {
+            sendMessageToAllNeighbours(new TextMessage(globalIDGenerator.getGlobalID(), (String) arg));
+        }
+    }
 }

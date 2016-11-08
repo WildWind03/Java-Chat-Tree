@@ -12,9 +12,4 @@ public class NewChildMessage extends BaseMessage {
         String serializedMessage = "" + MessageType.NEW_CHILD + SEPARATOR_CHAR + getGlobalID();
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
-
-    @Override
-    void process(Node node) {
-        node.handleNewChildMessage(this);
-    }
 }

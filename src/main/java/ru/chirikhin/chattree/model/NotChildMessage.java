@@ -17,8 +17,4 @@ public class NotChildMessage extends BaseMessage {
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
 
-    @Override
-    void process(Node node) {
-        node.handleNotChildMessage(this);
-    }
 }

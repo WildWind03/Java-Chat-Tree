@@ -1,9 +1,5 @@
 package ru.chirikhin.chattree.model;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.nio.charset.Charset;
-
 public abstract class BaseMessage {
     protected final static char SEPARATOR_CHAR = '_';
 

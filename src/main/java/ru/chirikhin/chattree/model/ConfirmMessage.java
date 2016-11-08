@@ -19,10 +19,4 @@ public class ConfirmMessage extends BaseMessage {
         String serializedMessage = "" + MessageType.CONFIRM + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + confirmForMessageID;
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
-
-    @Override
-    void process(Node node) {
-        node.handleConfirmMessage(this);
-    }
-
 }

@@ -51,10 +51,12 @@ public class Node implements Runnable, Observer {
         this.senderThread.start();
         this.resenderThread.start();
 
-        BaseMessage newChildMessage = new NewChildMessage(globalIDGenerator.getGlobalID());
-
         try {
-            sendMessage(new AddressedMessage(newChildMessage, parentInetSocketAddress));
+
+            if (!isRoot()) {
+                BaseMessage newChildMessage = new NewChildMessage(globalIDGenerator.getGlobalID());
+                sendMessage(new AddressedMessage(newChildMessage, parentInetSocketAddress));
+            }
 
             while (!Thread.currentThread().isInterrupted()) {
                 ReceivedMessage baseMessage = receivedMessages.take();
@@ -63,6 +65,10 @@ public class Node implements Runnable, Observer {
         } catch (InterruptedException e) {
             logger.info("The thread was interrupted");
         }
+    }
+
+    private boolean isRoot() {
+        return null == parentInetSocketAddress;
     }
 
     private void sendMessage(AddressedMessage addressedMessage) {

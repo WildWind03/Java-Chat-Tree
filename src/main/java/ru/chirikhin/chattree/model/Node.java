@@ -40,9 +40,9 @@ public class Node implements Runnable, Observer {
         this.name = name;
         this.parentInetSocketAddress = parentInetSocketAddress;
         this.globalIDGenerator = new GlobalIDGenerator(port, Inet4Address.getLocalHost().getHostAddress());
-        this.receiverThread = new Thread(new MessageReceiver(receivedMessages, datagramSocket, percentOfLose));
-        this.senderThread = new Thread(new MessageSender(messagesToSend, datagramSocket));
-        this.resenderThread = new Thread(new MessageResender(messagesToSend, notConfirmedMessages));
+        this.receiverThread = new Thread(new MessageReceiver(receivedMessages, datagramSocket, percentOfLose), "Message Receiver Thread");
+        this.senderThread = new Thread(new MessageSender(messagesToSend, datagramSocket), "Message Sender Thread");
+        this.resenderThread = new Thread(new MessageResender(messagesToSend, notConfirmedMessages), "Message Resender Thread");
     }
 
     @Override
@@ -171,7 +171,9 @@ public class Node implements Runnable, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+
         if (arg instanceof String) {
+            logger.info ("New message was received: " + arg);
             sendMessageToAllNeighbours(new TextMessage(globalIDGenerator.getGlobalID(), name + ": " + arg));
         }
     }
@@ -188,5 +190,7 @@ public class Node implements Runnable, Observer {
         } catch (InterruptedException e) {
             logger.info(e.getMessage());
         }
+
+        logger.error("All node's subthreads are stopped");
     }
 }

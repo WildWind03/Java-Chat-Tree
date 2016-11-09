@@ -12,13 +12,17 @@ repositories {
 }
 
 jar {
-    manifest{
+    manifest {
         attributes 'Main-Class' : 'ru.chirikhin.chattree.Main'
     }
 
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+run {
+    args = ['NewNode', '50', '12000']
 }
 
 dependencies {

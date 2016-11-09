@@ -40,8 +40,8 @@ public class TreeNodeController {
         node = new Node(name, percentOfLoss, port, parentInetSocketAddress);
         consoleInputView.addObserver(node);
 
-        nodeThread = new Thread(node);
-        consoleInputViewThread = new Thread(consoleInputView);
+        nodeThread = new Thread(node, "Node Thread");
+        consoleInputViewThread = new Thread(consoleInputView, "Console Input View Thread");
     }
 
     public void start() throws SocketException, UnknownHostException {
@@ -58,6 +58,7 @@ public class TreeNodeController {
         nodeThread.interrupt();
 
         node.stop();
+        consoleInputView.stop();
 
         try {
             nodeThread.join();
@@ -65,5 +66,7 @@ public class TreeNodeController {
         } catch (InterruptedException e) {
             logger.info(e.getMessage());
         }
+
+        logger.info("Before exit");
     }
 }

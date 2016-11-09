@@ -15,7 +15,7 @@ public class Main {
             logger.info("Tree Node Controller was created");
             treeNodeController.start();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(treeNodeController::stop));
+            Runtime.getRuntime().addShutdownHook(new Thread(treeNodeController::stop, "Shutdown Handler Thread"));
             logger.info("Signal handler was set");
 
         } catch (Throwable t) {

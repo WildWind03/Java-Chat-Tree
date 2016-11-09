@@ -13,7 +13,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Node implements Runnable, Observer {
     private static final Logger logger = Logger.getLogger(Node.class.toString());
-    private static final int DATAGRAM_SOCKET_TIMEOUT = 1000;
     private static final int MAX_COUNT_OF_NOT_CONFIRMED_MESSAGES = 3000;
     private static final int CAPACITY_OF_RECEIVE_QUEUE = 1000;
     private static final int CAPACITY_OF_TO_SEND_QUEUE = 1000;
@@ -36,7 +35,6 @@ public class Node implements Runnable, Observer {
 
     public Node (String name, int percentOfLose, int port, InetSocketAddress parentInetSocketAddress) throws SocketException, UnknownHostException {
         this.datagramSocket = new DatagramSocket(port);
-        this.datagramSocket.setSoTimeout(DATAGRAM_SOCKET_TIMEOUT);
         this.name = name;
         this.parentInetSocketAddress = parentInetSocketAddress;
         this.globalIDGenerator = new GlobalIDGenerator(port, Inet4Address.getLocalHost().getHostAddress());
@@ -77,7 +75,9 @@ public class Node implements Runnable, Observer {
     }
 
     private void sendMessageToAllNeighbours(BaseMessage baseMessage) {
-        sendMessage(new AddressedMessage(baseMessage, parentInetSocketAddress));
+        if (null != parentInetSocketAddress) {
+            sendMessage(new AddressedMessage(baseMessage, parentInetSocketAddress));
+        }
 
         for (InetSocketAddress child : children) {
             sendMessage(new AddressedMessage(baseMessage, child));
@@ -86,6 +86,7 @@ public class Node implements Runnable, Observer {
 
     public void handleReceivedTextMessage(ReceivedTextMessage textMessage) {
         logger.info("New text message: " + textMessage.getReceivedMessage().getText());
+        System.out.println(textMessage.getReceivedMessage().getText());
 
         if (!textMessage.getInetSocketAddress().equals(parentInetSocketAddress)) {
             sendMessage(new AddressedMessage(textMessage.getReceivedMessage(), parentInetSocketAddress));
@@ -171,6 +172,8 @@ public class Node implements Runnable, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+
+        logger.info("Node update");
 
         if (arg instanceof String) {
             logger.info ("New message was received: " + arg);

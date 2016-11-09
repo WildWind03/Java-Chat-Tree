@@ -18,12 +18,6 @@ import java.util.Scanner;
 public class ConsoleInputView extends Observable implements Runnable {
 
     private static final Logger logger = Logger.getLogger(ConsoleInputView.class);
-    //private static final int BYTE_BUFFER_SIZE = 1024;
-
-    //private final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-    //private final ReadableByteChannel fileChannel = Channels.newChannel(System.in);
-    //private final ByteBuffer byteBuffer = ByteBuffer.allocate(BYTE_BUFFER_SIZE);
-
     private final Scanner scanner = new Scanner(System.in);
 
     @Override
@@ -32,14 +26,9 @@ public class ConsoleInputView extends Observable implements Runnable {
 
         try {
             while (!Thread.currentThread().isInterrupted() && scanner.hasNextLine()) {
-                //fileChannel.read(byteBuffer);
-                //byteBuffer.flip();
-
-                //String text = new String(byteBuffer.array());
                 String text = scanner.nextLine();
-                //byteBuffer.clear();
-
                 logger.info ("New string was read from console");
+                setChanged();
                 notifyObservers(text);
             }
         } catch (Throwable t) {
@@ -53,9 +42,6 @@ public class ConsoleInputView extends Observable implements Runnable {
 
         try {
             scanner.close();
-            //fileChannel.close();
-            //System.in.close();
-
             logger.info("Closed");
         } catch (Throwable t) {
             logger.error(t.getMessage());

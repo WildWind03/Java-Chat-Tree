@@ -1,7 +1,7 @@
 package ru.chirikhin.chattree.model;
 
 public abstract class BaseMessage {
-    protected final static char SEPARATOR_CHAR = '_';
+    protected final static String SEPARATOR_CHAR = "_";
 
     private final long globalID;
 

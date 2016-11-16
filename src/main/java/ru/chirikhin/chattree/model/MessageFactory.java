@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 
 public class MessageFactory {
     private static final Logger logger = Logger.getLogger(MessageFactory.class.getName());

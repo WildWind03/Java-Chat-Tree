@@ -21,7 +21,7 @@ public class TextMessage extends BaseMessage {
 
     @Override
     byte[] bytes() {
-        String serializedMessage = "" + MessageType.TEXT + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getText();
+        String serializedMessage = MessageType.TEXT.returnValue() + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getText();
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
 }

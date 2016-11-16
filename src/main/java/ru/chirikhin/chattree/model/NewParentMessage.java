@@ -27,7 +27,7 @@ public class NewParentMessage extends BaseMessage {
 
     @Override
     byte[] bytes() {
-        String serializedMessage = "" + MessageType.NEW_PARENT + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getNewParentIP() + SEPARATOR_CHAR + port;
+        String serializedMessage = MessageType.NEW_PARENT.returnValue() + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + getNewParentIP() + SEPARATOR_CHAR + port;
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
 }

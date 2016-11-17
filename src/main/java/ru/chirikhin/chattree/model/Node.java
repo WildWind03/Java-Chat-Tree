@@ -91,15 +91,18 @@ public class Node implements Runnable, Observer {
         logger.info("New text message: " + textMessage.getReceivedMessage().getText());
         System.out.println(textMessage.getReceivedMessage().getText());
 
-        if (!textMessage.getInetSocketAddress().equals(parentInetSocketAddress)) {
-            sendMessageWithoutConfirmation(new AddressedMessage(textMessage.getReceivedMessage(), parentInetSocketAddress));
+        if (!textMessage.getInetSocketAddress().equals(parentInetSocketAddress) && parentInetSocketAddress != null) {
+            sendMessageWithConfirmation(new AddressedMessage(textMessage.getReceivedMessage(), parentInetSocketAddress));
         }
 
         for (InetSocketAddress inetSocketAddress : children) {
             if (!inetSocketAddress.equals(textMessage.getInetSocketAddress())) {
-                sendMessageWithoutConfirmation(new AddressedMessage(textMessage.getReceivedMessage(), inetSocketAddress));
+                sendMessageWithConfirmation(new AddressedMessage(textMessage.getReceivedMessage(), inetSocketAddress));
             }
         }
+
+        ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), textMessage.getReceivedMessage().getGlobalID());
+        sendMessageWithoutConfirmation(new AddressedMessage(confirmMessage, textMessage.getInetSocketAddress()));
     }
 
     public void handleReceivedConfirmMessage(ReceivedConfirmMessage confirmMessage) {
@@ -183,6 +186,8 @@ public class Node implements Runnable, Observer {
         resenderThread.interrupt();
         senderThread.interrupt();
         receiverThread.interrupt();
+
+        datagramSocket.close();
 
         try {
             receiverThread.join();

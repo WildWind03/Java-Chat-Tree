@@ -14,23 +14,30 @@ public class CycleLinkedList<T> {
 
     public CycleLinkedList(int size) {
         this.maxSize = size;
-        linkedList = new LinkedList<T>();
+        linkedList = new LinkedList<>();
     }
 
     public void push(T t) {
         if (currentSize >= maxSize) {
             linkedList.removeFirst();
+        } else {
+            currentSize++;
         }
 
         linkedList.push(t);
     }
 
     public boolean add(T t) {
-        if (currentSize++ >= maxSize) {
+        if (currentSize + 1 < maxSize) {
+            currentSize++;
             return linkedList.add(t);
         } else {
             return false;
         }
+    }
+
+    public int size() {
+        return currentSize;
     }
 
     public Iterator<T> iterator() {

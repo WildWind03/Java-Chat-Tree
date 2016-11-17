@@ -33,8 +33,8 @@ public class MessageSender implements Runnable {
             }
         } catch (InterruptedException e) {
             logger.info ("Thread was interrupted");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage());
         }
     }
 }

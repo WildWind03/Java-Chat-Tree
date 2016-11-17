@@ -31,12 +31,14 @@ public class MessageReceiver implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 datagramSocket.receive(datagramPacket);
-                logger.info("New message actually received");
+                logger.info("New message received");
 
                 if (random.nextInt(MAX_RANDOM_NUMBER) >= percentOfLoss) {
-                    logger.info("New message received at all!");
+                    logger.info("New message isn't lost!");
                     ReceivedMessage baseMessage = MessageFactory.createMessage(datagramPacket);
                     receivedMessages.put(baseMessage);
+                } else {
+                    logger.info("Unfortunately, the message is lost");
                 }
             }
         } catch (IOException e) {

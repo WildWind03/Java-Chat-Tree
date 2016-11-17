@@ -17,7 +17,6 @@ public class GlobalIDGenerator {
 
     public long getGlobalID() {
         String globalIDStr = (currentLocalID++) + ip.replaceAll("[.]", "") + port;
-        logger.info("Next global is is " + globalIDStr);
         return Long.parseLong(globalIDStr);
     }
 }

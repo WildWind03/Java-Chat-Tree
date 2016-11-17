@@ -21,8 +21,16 @@ jar {
     }
 }
 
-run {
-    args = ['NewNode', '50', '12000']
+task root(dependsOn:"classes", type: JavaExec) {
+    main = 'ru.chirikhin.chattree.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['RootNode', '50', '12000']
+}
+
+task node(dependsOn:"classes", type: JavaExec) {
+    main = 'ru.chirikhin.chattree.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['ChildNode', '50', '12001', 'localhost', '12000']
 }
 
 dependencies {

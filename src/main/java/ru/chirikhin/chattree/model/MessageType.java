@@ -12,10 +12,4 @@ public enum MessageType {
     public int returnValue() {
         return value;
     }
-
-
-    @Override
-    public String toString() {
-        return "" + returnValue();
-    }
 }

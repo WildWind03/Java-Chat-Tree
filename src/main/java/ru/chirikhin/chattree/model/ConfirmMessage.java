@@ -16,7 +16,7 @@ public class ConfirmMessage extends BaseMessage {
 
     @Override
     byte[] bytes() {
-        String serializedMessage = MessageType.CONFIRM.returnValue() + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + confirmForMessageID;
+        String serializedMessage = MessageType.CONFIRM.returnValue() + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + confirmForMessageID + SEPARATOR_CHAR;
         return serializedMessage.getBytes(Charset.forName("UTF-8"));
     }
 }

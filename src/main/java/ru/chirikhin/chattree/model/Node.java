@@ -53,7 +53,7 @@ public class Node implements Runnable, Observer {
 
             if (!isRoot()) {
                 BaseMessage newChildMessage = new NewChildMessage(globalIDGenerator.getGlobalID());
-                sendMessage(new AddressedMessage(newChildMessage, parentInetSocketAddress));
+                sendMessageWithConfirmation(new AddressedMessage(newChildMessage, parentInetSocketAddress));
             }
 
             while (!Thread.currentThread().isInterrupted()) {
@@ -69,18 +69,21 @@ public class Node implements Runnable, Observer {
         return null == parentInetSocketAddress;
     }
 
-    private void sendMessage(AddressedMessage addressedMessage) {
+    private void sendMessageWithoutConfirmation(AddressedMessage addressedMessage) {
+        messagesToSend.add(addressedMessage);
+    }
+    private void sendMessageWithConfirmation(AddressedMessage addressedMessage) {
         messagesToSend.add(addressedMessage);
         notConfirmedMessages.add(new NotConfirmedAddressedMessage(addressedMessage, System.currentTimeMillis()));
     }
 
     private void sendMessageToAllNeighbours(BaseMessage baseMessage) {
         if (null != parentInetSocketAddress) {
-            sendMessage(new AddressedMessage(baseMessage, parentInetSocketAddress));
+            sendMessageWithConfirmation(new AddressedMessage(baseMessage, parentInetSocketAddress));
         }
 
         for (InetSocketAddress child : children) {
-            sendMessage(new AddressedMessage(baseMessage, child));
+            sendMessageWithConfirmation(new AddressedMessage(baseMessage, child));
         }
     }
 
@@ -89,17 +92,18 @@ public class Node implements Runnable, Observer {
         System.out.println(textMessage.getReceivedMessage().getText());
 
         if (!textMessage.getInetSocketAddress().equals(parentInetSocketAddress)) {
-            sendMessage(new AddressedMessage(textMessage.getReceivedMessage(), parentInetSocketAddress));
+            sendMessageWithoutConfirmation(new AddressedMessage(textMessage.getReceivedMessage(), parentInetSocketAddress));
         }
 
         for (InetSocketAddress inetSocketAddress : children) {
             if (!inetSocketAddress.equals(textMessage.getInetSocketAddress())) {
-                sendMessage(new AddressedMessage(textMessage.getReceivedMessage(), inetSocketAddress));
+                sendMessageWithoutConfirmation(new AddressedMessage(textMessage.getReceivedMessage(), inetSocketAddress));
             }
         }
     }
 
     public void handleReceivedConfirmMessage(ReceivedConfirmMessage confirmMessage) {
+        logger.info("Handle received confirm message");
         Iterator<NotConfirmedAddressedMessage> addressedMessageIterator = notConfirmedMessages.iterator();
 
         while(addressedMessageIterator.hasNext()) {
@@ -110,6 +114,7 @@ public class Node implements Runnable, Observer {
     }
 
     public void handleReceivedNotChildMessage(ReceivedNotChildMessage notChildMessage) {
+        logger.info("Handle received not child message");
         Iterator<InetSocketAddress> inetSocketAddressIterator = children.iterator();
 
         while (inetSocketAddressIterator.hasNext()) {
@@ -128,9 +133,8 @@ public class Node implements Runnable, Observer {
 
         ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), notChildMessage.getNotChildMessage().getGlobalID());
         AddressedMessage addressedMessage = new AddressedMessage(confirmMessage, notChildMessage.getInetSocketAddress());
-        if (!messagesToSend.add(addressedMessage)) {
-            logger.error("Can not send confirm message while answering notChildMessage");
-        }
+
+        sendMessageWithoutConfirmation(addressedMessage);
     }
 
     public void handleReceivedNewParentMessage(ReceivedNewParentMessage newParentMessage) {
@@ -152,9 +156,8 @@ public class Node implements Runnable, Observer {
 
         ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), newParentMessage.getNewParentMessage().getGlobalID());
         AddressedMessage addressedMessage = new AddressedMessage(confirmMessage, new InetSocketAddress(newParentMessage.getNewParentMessage().getNewParentIP(), newParentMessage.getNewParentMessage().getPort()));
-        if (!messagesToSend.add(addressedMessage)) {
-            logger.error("Can't send confirm message while answering newParentMessage");
-        }
+
+        sendMessageWithoutConfirmation(addressedMessage);
 
         parentInetSocketAddress = new InetSocketAddress(newParentMessage.getNewParentMessage().getNewParentIP(), newParentMessage.getNewParentMessage().getPort());
     }
@@ -165,18 +168,13 @@ public class Node implements Runnable, Observer {
         ConfirmMessage confirmMessage = new ConfirmMessage(globalIDGenerator.getGlobalID(), newChildMessage.getNewChildMessage().getGlobalID());
         AddressedMessage addressedMessage = new AddressedMessage(confirmMessage, newChildMessage.getInetSocketAddress());
 
-        if (!messagesToSend.add(addressedMessage)) {
-            logger.error("Can't send confirm message while answering newChildMessage");
-        }
+        sendMessageWithoutConfirmation(addressedMessage);
     }
 
     @Override
     public void update(Observable o, Object arg) {
-
-        logger.info("Node update");
-
         if (arg instanceof String) {
-            logger.info ("New message was received: " + arg);
+            logger.info ("New message from console was received: " + arg);
             sendMessageToAllNeighbours(new TextMessage(globalIDGenerator.getGlobalID(), name + ": " + arg));
         }
     }

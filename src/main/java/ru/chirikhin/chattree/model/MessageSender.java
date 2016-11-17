@@ -26,10 +26,10 @@ public class MessageSender implements Runnable {
                 AddressedMessage addressedMessage = addressedMessages.take();
                 BaseMessage baseMessage = addressedMessage.getBaseMessage();
 
-                logger.info("Want to send message to: " + addressedMessage.getReceiverAddress().getHostName() + ":" + addressedMessage.getReceiverAddress().getPort());
+                logger.info("Trying to send message " + baseMessage.getGlobalID() + " to: " + addressedMessage.getReceiverAddress().getHostName() + ":" + addressedMessage.getReceiverAddress().getPort());
                 InetSocketAddress inetSocketAddress = addressedMessage.getReceiverAddress();
                 datagramSocket.send(new DatagramPacket(baseMessage.bytes(), baseMessage.bytes().length, inetSocketAddress));
-                logger.info ("Message " + baseMessage.getGlobalID() + " was sent");
+                logger.info ("The Message " + baseMessage.getGlobalID() + " was sent");
             }
         } catch (InterruptedException e) {
             logger.info ("Thread was interrupted");

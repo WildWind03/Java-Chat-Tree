@@ -14,6 +14,10 @@ public class ConfirmMessage extends BaseMessage {
         return baseMessage.getGlobalID() == confirmForMessageID;
     }
 
+    public long getConfirmForMessageID() {
+        return confirmForMessageID;
+    }
+
     @Override
     byte[] bytes() {
         String serializedMessage = MessageType.CONFIRM.returnValue() + SEPARATOR_CHAR + getGlobalID() + SEPARATOR_CHAR + confirmForMessageID + SEPARATOR_CHAR;

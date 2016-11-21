@@ -3,20 +3,13 @@ package ru.chirikhin.chattree.model;
 import java.net.InetSocketAddress;
 
 public class ReceivedNotChildMessage extends ReceivedMessage {
-    private final NotChildMessage notChildMessage;
-    private final InetSocketAddress inetSocketAddress;
 
     public ReceivedNotChildMessage(NotChildMessage notChildMessage, InetSocketAddress inetSocketAddress) {
-        this.notChildMessage = notChildMessage;
-        this.inetSocketAddress = inetSocketAddress;
+        super(inetSocketAddress, notChildMessage);
     }
 
     public NotChildMessage getNotChildMessage() {
-        return notChildMessage;
-    }
-
-    public InetSocketAddress getInetSocketAddress() {
-        return inetSocketAddress;
+        return (NotChildMessage) getBaseMessage();
     }
 
     @Override

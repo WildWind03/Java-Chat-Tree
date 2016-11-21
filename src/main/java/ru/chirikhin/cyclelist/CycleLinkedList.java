@@ -4,27 +4,19 @@ import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class CycleLinkedList<T> {
+public class CycleLinkedList<T> implements Iterable<T> {
     private static final Logger logger = Logger.getLogger(CycleLinkedList.class.getName());
 
-    private final LinkedList<T> linkedList;
+    private final BlockingQueue<T> linkedList;
     private final int maxSize;
     private int currentSize;
 
     public CycleLinkedList(int size) {
         this.maxSize = size;
-        linkedList = new LinkedList<>();
-    }
-
-    public void push(T t) {
-        if (currentSize >= maxSize) {
-            linkedList.removeFirst();
-        } else {
-            currentSize++;
-        }
-
-        linkedList.push(t);
+        linkedList = new LinkedBlockingQueue<>(size);
     }
 
     public boolean add(T t) {
@@ -36,10 +28,16 @@ public class CycleLinkedList<T> {
         }
     }
 
+    public void clear() {
+        currentSize = 0;
+        linkedList.clear();
+    }
+
     public int size() {
         return currentSize;
     }
 
+    @Override
     public Iterator<T> iterator() {
         return linkedList.iterator();
     }

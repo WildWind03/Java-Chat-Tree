@@ -19,7 +19,6 @@ public class MessageFactory {
     public static ReceivedMessage createMessage(DatagramPacket datagramPacket) {
         byte[] bytes = datagramPacket.getData();
         String string = new String(bytes, Charset.forName("UTF-8"));
-        logger.info ("String to parse: " + string);
         String[] strings = StringUtils.split(string, SEPARATOR_CHAR);
         int messageType = Integer.parseInt(strings[0]);
 

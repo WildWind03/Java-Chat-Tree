@@ -25,13 +25,10 @@ public class MessageResender implements Runnable {
     public void run() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                logger.info ("New turn");
                 long currentTime = System.currentTimeMillis();
                 Iterator<NotConfirmedAddressedMessage> iterator = notConfirmedAddressedMessageCycleLinkedList.iterator();
-                logger.info ("There is " + notConfirmedAddressedMessageCycleLinkedList.size() + " not confirmed messages");
                 while (iterator.hasNext()) {
                     NotConfirmedAddressedMessage currentMessage = iterator.next();
-                    logger.info(currentTime + " " + currentMessage.getTimeOfAdd());
                     if (currentTime - currentMessage.getTimeOfAdd() >= MAX_DELAY_TO_RESEND) {
                         logger.info("Message " + currentMessage.getAddressedMessage().getBaseMessage().getGlobalID() + " will be resend. There is not confirmation for the message");
                         currentMessage.updateTimeOfAdd(System.currentTimeMillis());
